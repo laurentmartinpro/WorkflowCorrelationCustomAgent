@@ -1,0 +1,31 @@
+<custom-agent-config>
+    <es-url>http://localhost</es-url> <!-- example: https://analytics.api.appdynamics.com -->
+    <es-port>9080</es-port> <!-- example: 443 -->
+    <global-account-name>customer1_7xxx-467a-bccc-xxx</global-account-name> <!-- example: customer1_7xxx-467a-bccc-xxx -->
+    <api-key>a123b456-c789-1d23-e456-nnn</api-key> <!-- example: a123b456-c789-1d23-e456-nnn -->
+    <accept>application/vnd.appd.events+json;v=1</accept>  <!-- Only supported value at the moment: application/vnd.appd.events+json;v=1 -->
+    <multiple-queries>false</multiple-queries> <!-- Only supported value at the moment: false -->
+    <content-type>application/vnd.appd.events+text;v=1</content-type> <!-- If multiple-queries: application/vnd.appd.events+json;v=1 (Not yet supported) -->
+    <content-type-json>application/vnd.appd.events+json;v=1</content-type-json> <!-- JSON type -->
+    <adql>SELECT application, transactionName, eventTimestamp, requestGUID, segments.userData.COMMONID AS commonId, responseTime, userExperience FROM transactions WHERE application = 'BigDealRetail' AND segments.userData.COMMONID IS NOT NULL</adql> <!-- Do not change the SELECT part. You may change the FROM part to refine the query -->
+    <query-limit>20000</query-limit> <!-- Limit the number of results of the ADQL query (Min 1, Max 20000) -->
+    <field-application>application</field-application> <!-- Field in the ADQL query corresponding to Application Name -->
+    <field-btname>transactionName</field-btname> <!-- Field in the ADQL query corresponding to BT Name -->
+    <field-event-time>eventTimestamp</field-event-time> <!-- Field in the ADQL query corresponding to Event Time -->
+    <field-guid>requestGUID</field-guid> <!-- Field in the ADQL query corresponding to Request GUID -->
+    <field-common-id>commonId</field-common-id> <!-- Field in the ADQL query corresponding to the common Id of multiple BTs -->
+    <field-response-time>responseTime</field-response-time> <!-- Field in the ADQL query corresponding to the response time -->
+    <field-user-experience>userExperience</field-user-experience> <!-- Field in the ADQL query corresponding to the user experience -->
+    <publish-schema>testschema</publish-schema> <!-- Schema to be used to publish aggregated events back to Analytics -->
+    <schema-template>{
+        "schema": {
+        "application" : "string",
+        "startTransactionName": "string",
+        "endTransactionName": "string",
+        "commonId": "string",
+        "timing": "integer",
+        "workflowBT": "integer",
+        "userExperience": "string"
+        }
+        }</schema-template> <!-- Schema Template. If changed, then Code change is required -->
+</custom-agent-config>
