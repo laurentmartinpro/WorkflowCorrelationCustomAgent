@@ -23,7 +23,7 @@ public class EventContainer {
     Integer fieldUserExperience = 0;
 
     public EventContainer(ResponseContainer rc, QueryEventsService qes) {
-        logger.info("Converting to Event Container...");
+        logger.info("Creating Event Container...");
         this.fieldAppNameId = rc.getFieldId(qes.getFieldAppName());
         this.fieldBtNameId = rc.getFieldId(qes.getFieldBtName());
         this.fieldEventTime = rc.getFieldId(qes.getFieldEventTime());
@@ -31,6 +31,13 @@ public class EventContainer {
         this.fieldCommonId = rc.getFieldId(qes.getFieldCommonId());
         this.fieldResponseTime = rc.getFieldId(qes.getFieldResponseTime());
         this.fieldUserExperience = rc.getFieldId(qes.getFieldUserExperience());
+        logger.info("Creating Event Container completed...");
+        addResults(rc, qes);
+
+    }
+
+    public void addResults(ResponseContainer rc, QueryEventsService qes) {
+        logger.info("Adding Results to Event Container...");
         for (List<Object> results : rc.getResults()) {
             EventEntity eventEntity = new EventEntity();
             Integer i = 1;
@@ -62,7 +69,7 @@ public class EventContainer {
             eventEntities.add(eventEntity);
         }
         printDebug();
-        logger.info("Converting to Event Container completed...");
+        logger.info("Adding Results to Event Container completed...");
     }
 
     private void printDebug() {

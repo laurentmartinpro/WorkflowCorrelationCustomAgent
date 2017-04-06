@@ -30,6 +30,9 @@ public class QueryEventsService {
     private String contentTypeJson = "application/vnd.appd.events+json;v=1";
     private String adql = "";
     private Integer limit = 20000;
+    private String mode = "none";
+    private Integer offset = 0;
+    private Integer count = 0;
     private DateTime startDate = null;
     private DateTime endDate = null;
     private String publishSchema = "";
@@ -44,6 +47,14 @@ public class QueryEventsService {
 
     public Integer getLimit() {
         return limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public String getMode() {
+        return mode;
     }
 
     public String getFieldAppName() {
@@ -93,6 +104,13 @@ public class QueryEventsService {
 
         if (config.containsKey("query-limit")) {
             this.limit = Integer.parseInt(config.get("query-limit"));
+        }
+
+        if (config.containsKey("mode")) {
+            this.mode = config.get("mode");
+            if (this.mode.equals("page") & this.limit > 10000)
+                this.limit = 10000;
+            this.count = this.limit;
         }
 
         if (config.containsKey("accept")) {
@@ -148,12 +166,12 @@ public class QueryEventsService {
             logger.debug("Start: \"" + this.startDate + "\"");
             logger.debug("End: \"" + this.endDate + "\"");
             logger.debug("Limit: \"" + this.limit + "\"");
+            logger.debug("Mode: \"" + this.mode + "\"");
             logger.debug("Publish Schema: \"" + this.publishSchema + "\"");
         }
     }
 
     public String runQuery() throws Exception {
-        logger.info("Executing ADQL Query: \"" + this.adql + "\"");
         String requestUrl = this.esUrl + ":" + this.esPort.toString() + "/events/query";
         String response = "";
         try {
@@ -168,6 +186,17 @@ public class QueryEventsService {
                 urlParameters.append(URLEncoder.encode(this.endDate.toString(), "UTF-8"));
                 urlParameters.append("&");
             }
+            if (this.mode.equals("page")) {
+                urlParameters.append("mode=");
+                urlParameters.append(URLEncoder.encode(this.mode, "UTF-8"));
+                urlParameters.append("&");
+                urlParameters.append("size=");
+                urlParameters.append(URLEncoder.encode(this.count.toString(), "UTF-8"));
+                urlParameters.append("&");
+                urlParameters.append("offset=");
+                urlParameters.append(URLEncoder.encode(this.offset.toString(), "UTF-8"));
+                urlParameters.append("&");
+            }
             urlParameters.append("limit=");
             urlParameters.append(URLEncoder.encode(this.limit.toString(), "UTF-8"));
             requestUrl = requestUrl + "?" + urlParameters.toString();
@@ -180,6 +209,8 @@ public class QueryEventsService {
         if (logger.isDebugEnabled()) {
             logger.debug(response);
         }
+        if (this.mode.equals("page"))
+            this.offset = this.offset + this.count;
         return response;
     }
 

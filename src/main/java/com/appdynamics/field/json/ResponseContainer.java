@@ -17,6 +17,9 @@ public class ResponseContainer {
     @SerializedName("results")
     @Expose
     private List<List<Object>> results = new ArrayList<List<Object>>();
+    @SerializedName("moreData")
+    @Expose
+    private Boolean moreData = false;
     @SerializedName("schema")
     @Expose
     private String schema;
@@ -57,6 +60,19 @@ public class ResponseContainer {
 
     public ResponseContainer withResults(List<List<Object>> results) {
         this.results = results;
+        return this;
+    }
+
+    public Boolean getMoreData() {
+        return moreData;
+    }
+
+    public void setMoreData(Boolean moreData) {
+        this.moreData = moreData;
+    }
+
+    public ResponseContainer withMoreData(Boolean moreData) {
+        this.moreData = moreData;
         return this;
     }
 

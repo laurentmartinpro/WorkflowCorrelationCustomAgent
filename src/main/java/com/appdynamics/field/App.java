@@ -40,12 +40,18 @@ public class App {
                 QueryEventsService queryEs = new QueryEventsService();
                 queryEs.init(config, startDate, endDate);
                 ResponseContainer rc = parseJSON(queryEs.runQuery());
-                if (rc.getTotal() > queryEs.getLimit()) {
-                    logger.warn("ADQL results items: " + rc.getTotal() + " - With current Limit: " + queryEs.getLimit());
-                    if (!overrideLimit & publishEvents)
-                        throw new Exception("Cannot publish events: Number of items retrieved by ADQL is too high compared to the current limit.");
+                Long total = rc.getTotal();
+                if (!queryEs.getMode().equals("page")) {
+                    if (total > queryEs.getLimit()) {
+                        logger.warn("ADQL results items: " + rc.getTotal() + " - With current Limit: " + queryEs.getLimit());
+                        if (!overrideLimit & publishEvents)
+                            throw new Exception("Cannot publish events: Number of items retrieved by ADQL is too high compared to the current limit.");
+                    }
                 }
                 EventContainer ec = new EventContainer(rc, queryEs);
+                if (queryEs.getMode().equals("page"))
+                    while (queryEs.getOffset() < total)
+                        ec.addResults(parseJSON(queryEs.runQuery()), queryEs);
                 EventAggregator ea = new EventAggregator(ec);
                 if (deleteSchema)
                     queryEs.deleteSchema();
@@ -84,10 +90,21 @@ public class App {
         return map;
     }
 
+    public static String removeJSONArrayEncapsulation(String s)
+    {
+        String firstChar = s.substring(0, 1);
+        String lastChar = s.substring(s.length() - 1, s.length());
+        if (firstChar.equals("[") & lastChar.equals("]"))
+            return s.substring(1, s.length() - 1);
+        else
+            return s;
+    }
+
     private static ResponseContainer parseJSON(String json) throws Exception {
         logger.info("Parsing JSON response...");
         Gson gson = new Gson();
         ResponseContainer rc = null;
+        json = removeJSONArrayEncapsulation(json);
         try {
             rc = gson.fromJson(json, ResponseContainer.class);
         } catch (Exception e) {
