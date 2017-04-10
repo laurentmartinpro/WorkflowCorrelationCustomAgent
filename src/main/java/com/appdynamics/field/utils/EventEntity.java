@@ -8,6 +8,16 @@ import org.joda.time.DateTime;
  */
 public class EventEntity {
     private static final Logger logger = Logger.getLogger(EventEntity.class);
+
+    public Boolean getUnique() {
+        return isUnique;
+    }
+
+    public void setUnique(Boolean unique) {
+        isUnique = unique;
+    }
+
+    private Boolean isUnique = false;
     private String appName = "";
     private String btName = "";
     private DateTime eventTime = null;

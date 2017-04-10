@@ -40,36 +40,59 @@ public class EventContainer {
         logger.info("Adding Results to Event Container...");
         for (List<Object> results : rc.getResults()) {
             EventEntity eventEntity = new EventEntity();
-            Integer i = 1;
-            for (Object item : results) {
-                if (i == this.fieldAppNameId) {
-                    eventEntity.setAppName(item.toString());
+            logger.debug("Adding Event...");
+            try {
+                Integer i = 1;
+                for (Object item : results) {
+                    if (i == this.fieldAppNameId) {
+                        eventEntity.setAppName(item.toString());
+                    }
+                    if (i == this.fieldBtNameId) {
+                        eventEntity.setBtName(item.toString());
+                    }
+                    if (i == this.fieldEventTime) {
+                        eventEntity.setEventTime(new DateTime(item));
+                    }
+                    if (i == this.fieldGuid) {
+                        eventEntity.setReqGUID(item.toString());
+                    }
+                    if (i == this.fieldCommonId) {
+                        ArrayList<Object> tmp = (ArrayList<Object>) item;
+                        eventEntity.setCommonId(tmp.get(0).toString());
+                    }
+                    if (i == this.fieldResponseTime) {
+                        eventEntity.setResponseTime(Float.valueOf(item.toString()));
+                    }
+                    if (i == this.fieldUserExperience) {
+                        eventEntity.setUserExperience(item.toString());
+                    }
+                    i++;
                 }
-                if (i == this.fieldBtNameId) {
-                    eventEntity.setBtName(item.toString());
-                }
-                if (i == this.fieldEventTime) {
-                    eventEntity.setEventTime(new DateTime(item));
-                }
-                if (i == this.fieldGuid) {
-                    eventEntity.setReqGUID(item.toString());
-                }
-                if (i == this.fieldCommonId) {
-                    ArrayList<Object> tmp = (ArrayList<Object>) item;
-                    eventEntity.setCommonId(tmp.get(0).toString());
-                }
-                if (i == this.fieldResponseTime) {
-                    eventEntity.setResponseTime(Float.valueOf(item.toString()));
-                }
-                if (i == this.fieldUserExperience) {
-                    eventEntity.setUserExperience(item.toString());
-                }
-                i++;
+                eventEntities.add(eventEntity);
+            } catch (Exception e) {
+                logger.error("Cannot add Event: " + eventEntity.getAppName() + " - " + eventEntity.getBtName() + " - ");
             }
-            eventEntities.add(eventEntity);
         }
         printDebug();
         logger.info("Adding Results to Event Container completed...");
+    }
+
+    public void removeDuplicates() {
+        List<EventEntity> results = new ArrayList<EventEntity>();
+        for (EventEntity ee1 : eventEntities) {
+            if (!ee1.getUnique()) {
+                results.add(ee1);
+                for (EventEntity ee2 : eventEntities) {
+                    if (ee1.getReqGUID().equals(ee2.getReqGUID())) {
+                        ee1.setUnique(true);
+                        ee2.setUnique(true);
+                    }
+                }
+            }
+        }
+        if (logger.isDebugEnabled())
+            logger.debug("Number of Events retrieved: " + results.size());
+        this.eventEntities = results;
     }
 
     private void printDebug() {

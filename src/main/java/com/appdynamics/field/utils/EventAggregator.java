@@ -15,6 +15,7 @@ public class EventAggregator {
 
     public EventAggregator(EventContainer ec) {
         logger.info("Creating Event Aggregator...");
+        ec.removeDuplicates();
         for (EventEntity ee1 : ec.eventEntities) {
             if (ee1.getSameFlowEntity() == null) {
                 EventWorkflow res = new EventWorkflow();
